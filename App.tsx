@@ -20,6 +20,11 @@ import {
     canUseResolution, canUseEdit, getMaxUploads, canUseTemplate,
     getGuestRemaining, consumeGuestCredit
 } from './services/authService';
+import {
+    trackLogin, trackLogout, trackRegister, trackGeneration,
+    trackGenerationSuccess, trackGenerationError, trackImageEdit,
+    trackDownload, trackPricingView
+} from './services/analytics';
 
 // Template map
 const TEMPLATE_MAP: Record<string, string> = {
@@ -123,13 +128,15 @@ const App: React.FC = () => {
 
     const handleLoginSuccess = (user: User) => {
         setAuth(prev => ({ ...prev, isLoggedIn: true, user, showLoginModal: false, showRegisterModal: false }));
+        trackLogin();
         showToast(`欢迎回来，${user.displayName}！`);
     };
 
     const handleLogout = () => {
         authLogout();
         setAuth({ isLoggedIn: false, user: null, showLoginModal: false, showRegisterModal: false, showPricingModal: false, showProfileModal: false });
-        setGuestRemaining(getGuestRemaining()); // Refresh guest limit on logout
+        setGuestRemaining(getGuestRemaining());
+        trackLogout();
         showToast('已退出登录');
     };
 
@@ -197,6 +204,15 @@ const App: React.FC = () => {
         }
 
         setIsGenerating(true);
+        const genStartTime = Date.now();
+        const userType = usingCustomKey ? 'custom' : (auth.isLoggedIn ? (auth.user?.plan || 'free') : 'guest');
+        trackGeneration({
+            resolution: settings.resolution,
+            aspectRatio: settings.aspectRatio,
+            templateName: compositionMode,
+            keyType: usingCustomKey ? 'custom' : 'builtin',
+            userType: userType as any,
+        });
         setEditMode(false);
 
         // Status message
@@ -240,9 +256,11 @@ const App: React.FC = () => {
             setGeneratedImageUrl(resultImage);
             setHistory(prev => [resultImage, ...prev]);
             setStatusMessage('');
+            trackGenerationSuccess(Date.now() - genStartTime);
             showToast('生成成功！');
         } catch (error: any) {
             console.error(error);
+            trackGenerationError(error.message || 'unknown');
             if (error.message?.includes('PERMISSION_DENIED') || error.message?.includes('API_KEY')) {
                 setStatusMessage('API Key 无效或权限不足');
                 setShowApiKeySettings(true);
@@ -290,6 +308,7 @@ const App: React.FC = () => {
             setEditPrompt('');
             setEditMode(false);
             setStatusMessage('');
+            trackImageEdit();
             showToast('修改成功！');
         } catch (error: any) {
             console.error(error);
@@ -301,6 +320,7 @@ const App: React.FC = () => {
 
     const downloadImage = (url: string) => {
         if (!url) return;
+        trackDownload();
         const link = document.createElement('a');
         link.href = url;
         link.download = `pixelmuse-${Date.now()}.png`;

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { login, register } from '../services/authService';
+import { trackRegister } from '../services/analytics';
 import { User } from '../types';
 
 interface LoginModalProps {
@@ -46,6 +47,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
                     return;
                 }
                 const user = register(email, password, displayName);
+                trackRegister();
                 onSuccess(user);
                 onClose();
             }

@@ -1,55 +1,69 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PixelMuse · AI 智能写真工作室</title>
-    <meta name="description" content="PixelMuse - 基于 Gemini AI 的智能写真创作平台，一键生成专业级艺术照、时尚大片、创意写真" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Noto Sans SC', 'Inter', 'system-ui', 'sans-serif'],
-              display: ['Inter', 'Noto Sans SC', 'sans-serif'],
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PixelMuse · AI 智能写真工作室</title>
+  <meta name="description" content="PixelMuse - 基于 Gemini AI 的智能写真创作平台，一键生成专业级艺术照、时尚大片、创意写真" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Noto Sans SC', 'Inter', 'system-ui', 'sans-serif'],
+            display: ['Inter', 'Noto Sans SC', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#fdf2f8',
+              100: '#fce7f3',
+              200: '#fbcfe8',
+              300: '#f9a8d4',
+              400: '#f472b6',
+              500: '#ec4899',
+              600: '#db2777',
+              700: '#be185d',
+              800: '#9d174d',
+              900: '#831843',
             },
-            colors: {
-              brand: {
-                50: '#fdf2f8',
-                100: '#fce7f3',
-                200: '#fbcfe8',
-                300: '#f9a8d4',
-                400: '#f472b6',
-                500: '#ec4899',
-                600: '#db2777',
-                700: '#be185d',
-                800: '#9d174d',
-                900: '#831843',
-              },
-              rose: {
-                950: '#4c0519',
-              },
-              surface: {
-                50: '#faf5ff',
-                100: '#f3e8ff',
-                800: '#1e1028',
-                850: '#170c22',
-                900: '#110a1a',
-                950: '#0a0510',
-              }
+            rose: {
+              950: '#4c0519',
+            },
+            surface: {
+              50: '#faf5ff',
+              100: '#f3e8ff',
+              800: '#1e1028',
+              850: '#170c22',
+              900: '#110a1a',
+              950: '#0a0510',
             }
           }
         }
       }
-    </script>
-    <link rel="stylesheet" href="/index.css">
-  </head>
-  <body class="bg-surface-950 text-white antialiased font-sans">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+    }
+  </script>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W3C3ED02N8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-W3C3ED02N8');
+  </script>
+  <meta name="ga-id" content="G-W3C3ED02N8">
+  <link rel="stylesheet" href="/index.css">
+</head>
+
+<body class="bg-surface-950 text-white antialiased font-sans">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
 </html>
