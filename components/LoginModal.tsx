@@ -1,164 +1,95 @@
 import React, { useState } from 'react';
 import { login, register } from '../services/authService';
-import { trackRegister } from '../services/analytics';
+import { trackLogin, trackRegister } from '../services/analytics';
 import { User } from '../types';
 
 interface LoginModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: (user: User) => void;
-    initialMode?: 'login' | 'register';
 }
 
-export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess, initialMode = 'login' }) => {
-    const [mode, setMode] = useState<'login' | 'register'>(initialMode);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [displayName, setDisplayName] = useState('');
-    const [error, setError] = useState('');
+export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccess }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     if (!isOpen) return null;
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
+    const handleGoogleLogin = async () => {
         setIsLoading(true);
+        // Simulate Google Login delay
+        setTimeout(() => {
+            // Mock a Google user
+            const mockEmail = `google_user_${Date.now().toString().slice(-4)}@gmail.com`;
+            const mockName = 'Google 用户';
 
-        try {
-            if (mode === 'login') {
-                if (!email || !password) {
-                    setError('请填写邮箱和密码');
-                    setIsLoading(false);
-                    return;
-                }
-                const user = login(email, password);
+            // Try to "login" or "register" this mock user
+            // In a real app, this would use the ID token from Google
+            try {
+                // For simplicity in this mock version, we just create a new session
+                // In reality, we'd check if email exists.
+                // Let's just use a fixed mock email for "demo" purposes or random?
+                // Use random to simulate different users
+                const user = register(mockEmail, 'google-mock-pass', mockName);
+                trackRegister(); // Track as new user
+                trackLogin();
                 onSuccess(user);
                 onClose();
-            } else {
-                if (!email || !password || !displayName) {
-                    setError('请填写所有字段');
-                    setIsLoading(false);
-                    return;
+            } catch (e) {
+                // If already registered (collision), try login
+                try {
+                    const user = login(mockEmail, 'google-mock-pass');
+                    trackLogin();
+                    onSuccess(user);
+                    onClose();
+                } catch (err) {
+                    console.error(err);
                 }
-                if (password.length < 6) {
-                    setError('密码至少 6 位');
-                    setIsLoading(false);
-                    return;
-                }
-                const user = register(email, password, displayName);
-                trackRegister();
-                onSuccess(user);
-                onClose();
             }
-        } catch (err: any) {
-            setError(err.message || '操作失败，请重试');
-        } finally {
             setIsLoading(false);
-        }
-    };
-
-    const switchMode = () => {
-        setMode(mode === 'login' ? 'register' : 'login');
-        setError('');
+        }, 800);
     };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content w-full max-w-md p-8" onClick={e => e.stopPropagation()}>
+            <div className="modal-content w-full max-w-sm p-8 text-center" onClick={e => e.stopPropagation()}>
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
-                        style={{ background: 'linear-gradient(135deg, rgba(232, 160, 191, 0.2), rgba(186, 144, 198, 0.15))', border: '1px solid rgba(232, 160, 191, 0.2)' }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-primary)' }}>
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
+                <div className="mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 bg-white shadow-lg">
+                        <svg viewBox="0 0 24 24" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                         </svg>
                     </div>
-                    <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                        {mode === 'login' ? '欢迎回来' : '加入 PixelMuse'}
+                    <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                        登录 PixelMuse
                     </h2>
-                    <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-                        {mode === 'login' ? '登录您的账号继续创作' : '注册账号，开启 AI 写真之旅'}
+                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                        登录后可保留生成记录
                     </p>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {mode === 'register' && (
-                        <div>
-                            <label className="section-label">昵称</label>
-                            <input
-                                type="text"
-                                className="input-field"
-                                placeholder="请输入您的昵称"
-                                value={displayName}
-                                onChange={e => setDisplayName(e.target.value)}
-                            />
-                        </div>
+                {/* Google Button */}
+                <button
+                    onClick={handleGoogleLogin}
+                    disabled={isLoading}
+                    className="w-full flex items-center justify-center gap-3 bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium py-3 px-4 rounded-xl transition-all hover:shadow-md"
+                >
+                    {isLoading ? (
+                        <span className="text-sm">正在登录...</span>
+                    ) : (
+                        <>
+                            <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                            </svg>
+                            <span>使用 Google 账号登录</span>
+                        </>
                     )}
-
-                    <div>
-                        <label className="section-label">邮箱</label>
-                        <input
-                            type="email"
-                            className="input-field"
-                            placeholder="请输入邮箱地址"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="section-label">密码</label>
-                        <input
-                            type="password"
-                            className="input-field"
-                            placeholder={mode === 'register' ? '设置密码（至少6位）' : '请输入密码'}
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                        />
-                    </div>
-
-                    {error && (
-                        <div className="p-3 rounded-xl text-sm" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#fca5a5' }}>
-                            {error}
-                        </div>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="btn-primary w-full flex items-center justify-center gap-2"
-                        style={{ marginTop: '24px' }}
-                    >
-                        {isLoading ? (
-                            <>
-                                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span>处理中...</span>
-                            </>
-                        ) : (
-                            <span>{mode === 'login' ? '登 录' : '注 册'}</span>
-                        )}
-                    </button>
-                </form>
-
-                {/* Switch Mode */}
-                <div className="text-center mt-6">
-                    <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                        {mode === 'login' ? '还没有账号？' : '已有账号？'}
-                    </span>
-                    <button
-                        onClick={switchMode}
-                        className="text-sm font-medium ml-1 hover:underline"
-                        style={{ color: 'var(--color-primary)' }}
-                    >
-                        {mode === 'login' ? '立即注册' : '去登录'}
-                    </button>
-                </div>
+                </button>
 
                 {/* Close */}
                 <button

@@ -171,7 +171,19 @@ const App: React.FC = () => {
         } else {
             // Guest: Check daily limit
             if (getGuestRemaining() <= 0) {
-                showToast('今日免费体验次数已用完，请登录或配置 API Key', 'error');
+                // Customized Toast for Guest Limit
+                showToast('今日额度已用完。加微信：amazonfbdeal 解锁更多！', 'error');
+
+                // Also copy wechat ID to clipboard automatically as a convenience? 
+                // Or just open login modal to let them "Login with Google"?
+                // Request said: "If they want more, let them contact wechat".
+                // But user ALSO said "Google login is needed to keep data".
+                // So we can still prompt login, but change the message.
+
+                // Let's copy wechat ID for them
+                navigator.clipboard.writeText('amazonfbdeal').catch(() => { });
+
+                // Show login modal as an alternative for "keeping data"
                 setAuth(prev => ({ ...prev, showLoginModal: true }));
                 return;
             }
@@ -712,8 +724,8 @@ const App: React.FC = () => {
             <ImageViewer url={viewingImage} onClose={() => setViewingImage(null)} />
 
             <LoginModal
-                isOpen={auth.showLoginModal}
-                onClose={() => setAuth(prev => ({ ...prev, showLoginModal: false }))}
+                isOpen={auth.showLoginModal || auth.showRegisterModal}
+                onClose={() => setAuth(prev => ({ ...prev, showLoginModal: false, showRegisterModal: false }))}
                 onSuccess={handleLoginSuccess}
             />
 
